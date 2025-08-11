@@ -4,72 +4,312 @@
 
 {% load cart %}
 {% load custom_filter %}
-<!-- body -->
-<div class="container-fluid mt-3">
-	<div class="row">
 
+<style>
+/* Homepage specific styles */
+.category-sidebar {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+}
 
-		<!-- filter -->
+.category-title {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
 
-		<div class="col-lg-3 mx-auto">
-			<div class="list-group">
+.category-list {
+  border: none;
+}
 
-				<a href="/" class="list-group-item list-group-item-action">All Products</a>
+.category-item {
+  border: none !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-dark);
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
 
-				{% for category in categories %}
-				<a href="/?category={{category.id}}"
-					class="list-group-item list-group-item-action">{{category.name}}</a>
-				{% endfor %}
-			</div>
-		</div>
+.category-item:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white !important;
+  transform: translateX(10px);
+  text-decoration: none;
+}
 
-		<!-- all products -->
-		<div id='products' class="col-lg-9 mx-auto">
-			<div class="row mx-auto">
-				{% for product in products %}
-				<div class="card mx-auto mb-3" id={{product.id}} style="width: 18rem;">
-					<img class="card-img-top" src="{{product.image.url}}" alt="Card image cap">
-					<div class="card-body">
-						<p class="card-title">{{product.name}}</p>
-						<p class="card-text"><b>{{product.price|currency}}</b></p>
-						<!-- {{product | is_in_cart:request.session.cart }} -->
-					</div>
+.category-item.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white !important;
+}
 
-					<div class="card-footer p-0 no-gutters">
+.products-section {
+  padding: 20px;
+}
 
-						{% if product|is_in_cart:request.session.cart %}
-						<div class="row no-gutters">
-							<form action="/#{{product.id}}" class="col-2 " method="post">
-								{% csrf_token %}
-								<input hidden type="text" name='product' value='{{product.id}}'>
-								<input hidden type="text" name='remove' value='True'>
-								<input type="submit" value=" - " class="btn btn-block btn-light border-right">
-							</form>
-							<div class="text-center col">{{product|cart_quantity:request.session.cart}} in Cart</div>
-							<form action="/#{{product.id}}" class="col-2 " method="post">
-								{% csrf_token %}
-								<input hidden type="text" name='product' value='{{product.id}}'>
-								<input type="submit" value=" + " class="btn btn-block btn-light border-left">
-							</form>
-						</div>
-						{% else %}
-						<form action="/#{{product.id}}" method="POST" class="btn-block">
-							{% csrf_token %}
-							<input hidden type="text" name='product' value='{{product.id}}'>
-							<input type="submit" class="float-right btn btn-light  form-control"
-								value="Add To Cart">
-						</form>
-						{% endif %}
+.section-title {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
 
-					</div>
+.product-card {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  transition: all 0.4s ease;
+  margin-bottom: 30px;
+  height: 100%;
+}
 
-				</div>
-				{% endfor %}
-			</div>
-		</div>
-	</div>
+.product-card:hover {
+  transform: translateY(-15px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.product-image {
+  height: 250px;
+  object-fit: contain;
+  width: 100%;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.1);
+}
+
+.product-info {
+  padding: 20px;
+}
+
+.product-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.product-price {
+  font-weight: 700;
+  font-size: 1.3rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 15px;
+}
+
+.cart-controls {
+  background: var(--bg-light);
+  border-radius: 15px;
+  padding: 10px;
+  margin: 0;
+}
+
+.cart-btn {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-btn-minus {
+  background: var(--danger-color);
+  color: white;
+}
+
+.cart-btn-plus {
+  background: var(--success-color);
+  color: white;
+}
+
+.cart-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.cart-quantity {
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.add-to-cart-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 12px 20px;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+  color: white;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 15px;
+}
+
+.hero-subtitle {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .category-sidebar {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .products-section {
+    padding: 10px;
+  }
+  
+  .hero-section {
+    padding: 20px;
+    margin: 10px 0;
+  }
+  
+  .hero-title {
+    font-size: 1.8rem;
+  }
+}
+</style>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Hero Section -->
+    <div class="col-12">
+      {% comment %} <div class="hero-section">
+        <h1 class="hero-title">Welcome to E-Shop</h1>
+        <p class="hero-subtitle">Discover amazing products at unbeatable prices</p>
+      </div> {% endcomment %}
+    </div>
+
+    <!-- Category Sidebar -->
+    <div class="col-lg-3">
+      <div class="category-sidebar">
+        <h3 class="category-title">
+          <i class="fas fa-filter mr-2"></i>Categories
+        </h3>
+        <div class="list-group category-list">
+          <a href="/" class="list-group-item list-group-item-action category-item">
+            <i class="fas fa-th-large mr-2"></i>All Products
+          </a>
+          {% for category in categories %}
+          <a href="/?category={{category.id}}" class="list-group-item list-group-item-action category-item">
+            <i class="fas fa-tag mr-2"></i>{{category.name}}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="col-lg-9">
+      <div class="products-section">
+        <h2 class="section-title">
+          <i class="fas fa-shopping-bag mr-2"></i>Featured Products
+        </h2>
+        <div class="row" id="products">
+          {% for product in products %}
+          <div class="col-xl-4 col-md-6 col-sm-12 mb-4">
+            <div class="card product-card" id="{{product.id}}">
+              <div style=" height: 250px;">
+                <img class="product-image" src="{{product.image.url}}" alt="{{product.name}}">
+              </div>
+              
+              <div class="product-info">
+                <h5 class="product-name">{{product.name}}</h5>
+                <p class="product-price">{{product.price|currency}}</p>
+                <!-- {{product | is_in_cart:request.session.cart }} -->
+                
+                <div class="cart-footer">
+                  {% if product|is_in_cart:request.session.cart %}
+                  <div class="cart-controls">
+                    <div class="row align-items-center">
+                      <div class="col-3">
+                        <form action="/#{{product.id}}" method="post">
+                          {% csrf_token %}
+                          <input hidden type="text" name='product' value='{{product.id}}'>
+                          <input hidden type="text" name='remove' value='True'>
+                          <button type="submit" class="cart-btn cart-btn-minus">
+                            <i class="fas fa-minus"></i>
+                          </button>
+                        </form>
+                      </div>
+                      <div class="col-6 cart-quantity">
+                        <i class="fas fa-shopping-cart mr-1"></i>
+                        {{product|cart_quantity:request.session.cart}} in Cart
+                      </div>
+                      <div class="col-3">
+                        <form action="/#{{product.id}}" method="post">
+                          {% csrf_token %}
+                          <input hidden type="text" name='product' value='{{product.id}}'>
+                          <button type="submit" class="cart-btn cart-btn-plus">
+                            <i class="fas fa-plus"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  <form action="/#{{product.id}}" method="POST">
+                    {% csrf_token %}
+                    <input hidden type="text" name='product' value='{{product.id}}'>
+                    <button type="submit" class="add-to-cart-btn">
+                      <i class="fas fa-cart-plus mr-2"></i>Add To Cart
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-
 
 {% endblock %}

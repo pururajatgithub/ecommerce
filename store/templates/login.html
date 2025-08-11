@@ -1,57 +1,182 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
-<div class="container">
-    <div class="p-4 m-4">
-        <div class="col-lg-4 mt-4 border mb-4 mx-auto rounded pt-4">
-            <div class="text-center col">
-            
-                <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shopping_cart_with_food_clip_art_2.svg/307px-Shopping_cart_with_food_clip_art_2.svg.png" alt=""
-                class="" style="height: 150px;">
-            <!-- <hr> -->
-            <div class="display-8">Create An Account</div>
-            <hr>
-            </div>
-            <h3 hidden class="alert alert-light border mt-4 mb-4 rounded">Login Here</h3>
-            <form action="/login" method="POST">
-                
-                {% csrf_token %}
+<style>
+.auth-container {
+  padding: 40px 20px;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-                {% if error%}
-                <div class="alert alert-danger" role="alert">
-                    {{error}}
-                </div>
-                {% endif %}
-                <!-- email -->
-                <div class="form-group">
-                    <label for="">Email</label>
-                    <input required type="email" name="email" id=""
-                    value="{{values.email}}" 
-                    class=" form-control-sm form-control" placeholder="example@gmail.com">
-                </div>
+.auth-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  padding: 40px;
+  max-width: 450px;
+  width: 100%;
+}
 
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-                <!-- password -->
-                <div class="form-group">
-                    <label for="">Password</label>
-                    <input type="password" 
-                    name="password" 
-                    id=""
-                     class="form-control form-control-sm" placeholder="********">
-                </div>
+.auth-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: white;
+  font-size: 2rem;
+}
 
-                <hr>
-                <div class="form-group">
-                    <input class="btn btn-sm btn-info col-lg-4" type="submit" value="Login">
-                </div>
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
 
-                
-            </form>
-        </div>
+.auth-subtitle {
+  color: var(--text-light);
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-control {
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  outline: none;
+}
+
+.auth-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.alert {
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.alert-danger {
+  background: rgba(245, 101, 101, 0.1);
+  color: var(--danger-color);
+  border-left: 4px solid var(--danger-color);
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+</style>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">
+        <i class="fas fa-sign-in-alt"></i>
+      </div>
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="auth-subtitle">Sign in to your account</p>
     </div>
+
+    <form action="/login" method="POST">
+      {% csrf_token %}
+
+      {% if error %}
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle mr-2"></i>{{error}}
+      </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope mr-1"></i>Email Address
+        </label>
+        <input required 
+               type="email" 
+               name="email" 
+               id="email"
+               value="{{values.email}}" 
+               class="form-control" 
+               placeholder="Enter your email">
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock mr-1"></i>Password
+        </label>
+        <input type="password" 
+               name="password" 
+               id="password"
+               class="form-control" 
+               placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="auth-btn">
+        <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+      </button>
+    </form>
+
+    <div class="auth-link">
+      Don't have an account? <a href="/signup">Create one here</a>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
