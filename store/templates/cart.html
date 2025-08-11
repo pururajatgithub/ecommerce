@@ -1,94 +1,435 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 {% load cart %}
 {% load custom_filter %}
-<div class="container">
-   <div class="border rounded p-4 m-4">
-        <p class="display-4 pl-4 ml-4">Your Cart</p>
-        <hr>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Sno.</th>
-                    <th>Image</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-                {% for product in products %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td><img style="height: 80px;" class="rounded-circle" src="{{product.image.url}}" alt=""></td>
-                    <td>{{product.name}}</td>
-                    <td>{{product.price|currency}}</td>
-                    <td>{{product|cart_quantity:request.session.cart}}</td>
-                    <td>{{product|price_total:request.session.cart|currency}}</td>
-                </tr>
 
-                {% endfor %}
-               
-            </tbody>
+<style>
+/* Cart page specific styles */
+.cart-container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-            <tfoot>
-                <tr>
-                    <th colspan="4"></th>
-                    <th class="" colspan="">Total</th>
-                    <th>{{products|total_cart_price:request.session.cart|currency}}</th>
-                </tr>
-            </tfoot>
-        </table>
-        <hr>
-        <div class="m-3 p-3">
-            <a href="#" data-toggle="modal" data-target="#exampleModal" class="btn btn-outline-info border rounded  col-lg-3 float-right">Check out</a>
+.cart-header {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.cart-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.cart-subtitle {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.cart-content {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.cart-table {
+  margin: 0;
+  border: none;
+}
+
+.cart-table thead {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.cart-table thead th {
+  border: none;
+  padding: 20px 15px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.cart-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.cart-table tbody tr:hover {
+  background: var(--bg-light);
+  transform: scale(1.01);
+}
+
+.cart-table tbody td {
+  padding: 20px 15px;
+  vertical-align: middle;
+  border: none;
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 15px;
+  object-fit: cover;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.1);
+}
+
+.product-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 1.1rem;
+}
+
+.product-price {
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.quantity-badge {
+  background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.total-price {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--success-color);
+}
+
+.cart-footer {
+  background: var(--bg-light);
+  padding: 25px 30px;
+}
+
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.total-section {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.grand-total {
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.checkout-btn {
+  background: linear-gradient(135deg, var(--success-color), #38a169);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 40px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.checkout-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(72, 187, 120, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-cart-icon {
+  font-size: 4rem;
+  color: var(--text-light);
+  margin-bottom: 20px;
+}
+
+.empty-cart-text {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 30px;
+}
+
+.continue-shopping {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.continue-shopping:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+/* Modal Styles */
+.modal-content {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  padding: 25px 30px;
+}
+
+.modal-title {
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.form-control {
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.checkout-form-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 12px 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.checkout-form-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+  .cart-container {
+    padding: 15px;
+  }
+  
+  .cart-header {
+    padding: 20px;
+  }
+  
+  .cart-title {
+    font-size: 2rem;
+  }
+  
+  .cart-table {
+    font-size: 0.9rem;
+  }
+  
+  .footer-row {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .checkout-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+</style>
+
+<div class="cart-container">
+  <!-- Cart Header -->
+  <div class="cart-header">
+    <h1 class="cart-title">
+      <i class="fas fa-shopping-cart mr-3"></i>Your Shopping Cart
+    </h1>
+    <p class="cart-subtitle">Review your items and proceed to checkout</p>
+  </div>
+
+  <!-- Cart Content -->
+  {% if products %}
+  <div class="cart-content">
+    <table class="table cart-table">
+      <thead>
+        <tr>
+          <th>Sno.</th>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>
+            <div class="text-center">
+              <span class="badge badge-primary">{{forloop.counter}}</span>
+            </div>
+          </td>
+          <td>
+            <img class="product-image" src="{{product.image.url}}" alt="{{product.name}}">
+          </td>
+          <td>
+            <div class="product-name">{{product.name}}</div>
+          </td>
+          <td>
+            <div class="product-price">{{product.price|currency}}</div>
+          </td>
+          <td>
+            <span class="quantity-badge">
+              <i class="fas fa-cubes mr-1"></i>
+              {{product|cart_quantity:request.session.cart}}
+            </span>
+          </td>
+          <td>
+            <div class="total-price">{{product|price_total:request.session.cart|currency}}</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="cart-footer">
+      <div class="footer-row">
+        <div class="total-section">
+          Total Amount: 
+          <span class="grand-total">{{products|total_cart_price:request.session.cart|currency}}</span>
         </div>
-   </div>
-</div>
-
-
-<!-- modal -->
-
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">
-              Check Out Form
-          </h5>
-          <hr>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="m-2 p-3">
-            <form action="/check-out" method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                  <label for="">Address</label>
-                  <input type="text" name="address" id="" class="form-control" placeholder="" aria-describedby="helpId">
-                  
-                </div>
-                <div class="form-group">
-                    <label for="">Phone</label>
-                    <input type="text" name="phone" id="" class="form-control" placeholder="" aria-describedby="helpId">
-                  </div>
-
-                  <input type="submit" class="btn float-right btn-outline-info col-lg-6" value="Check out">
-            </form>
-          </div>
-        </div>
-        
+        <a href="#" data-toggle="modal" data-target="#checkoutModal" class="checkout-btn">
+          <i class="fas fa-credit-card mr-2"></i>Proceed to Checkout
+        </a>
       </div>
     </div>
   </div>
+  {% else %}
+  <div class="cart-content">
+    <div class="empty-cart">
+      <div class="empty-cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
+      <div class="empty-cart-text">Your cart is empty</div>
+      <a href="/" class="continue-shopping">
+        <i class="fas fa-arrow-left mr-2"></i>Continue Shopping
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
 
-
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="checkoutModalLabel">
+          <i class="fas fa-credit-card mr-2"></i>Checkout Information
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/check-out" method="POST">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="address">
+                  <i class="fas fa-map-marker-alt mr-1"></i>Delivery Address
+                </label>
+                <textarea name="address" id="address" class="form-control" rows="3" placeholder="Enter your complete address" required></textarea>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="phone">
+                  <i class="fas fa-phone mr-1"></i>Phone Number
+                </label>
+                <input type="tel" name="phone" id="phone" class="form-control" placeholder="Enter your phone number" required>
+              </div>
+              
+              <div class="form-group">
+                <label>
+                  <i class="fas fa-info-circle mr-1"></i>Order Summary
+                </label>
+                <div class="bg-light p-3 rounded">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Total Items:</span>
+                    <span class="font-weight-bold">{{request.session.cart.keys|length}}</span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span>Grand Total:</span>
+                    <span class="font-weight-bold text-success">{{products|total_cart_price:request.session.cart|currency}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center mt-4">
+            <button type="submit" class="checkout-form-btn">
+              <i class="fas fa-check-circle mr-2"></i>Complete Order
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

@@ -1,85 +1,229 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
-<div class="container mt-4">
-    
-    <div class="p-4 m-4">
+<style>
+.auth-container {
+  padding: 40px 20px;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-        
-        <div class="col-lg-5 rounded mx-auto border pt-4">
-            <div class="text-center col">
-            
-                <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shopping_cart_with_food_clip_art_2.svg/307px-Shopping_cart_with_food_clip_art_2.svg.png" alt=""
-                class="" style="height: 150px;">
-            <!-- <hr> -->
-            <div class="display-8">Create An Account</div>
-            <hr>
-            </div>
-            <h3 hidden class="alert alert-light border rounded">Create An Account</h3>
-            <form action="/signup" method="POST">
-                
-                {% csrf_token %}
+.auth-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+}
 
-                {% if error%}
-                <div class="alert alert-danger" role="alert">
-                    {{error}}
-                </div>
-                {% endif %}
-                <!-- firstname -->
-                <div class="form-group">
-                    <label for="">First Name</label>
-                    <input type="text" name="firstname"
-                     id="" value="{{values.first_name}}" class="form-control form-control-sm" 
-                     placeholder="">
-                </div>
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-                <!-- last name -->
-                <div class="form-group">
-                    <label for="">Last Name</label>
-                    <input type="text" name="lastname" 
-                    id="" value="{{values.last_name}}" class="form-control form-control-sm"
-                    >
-                </div>
+.auth-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: white;
+  font-size: 2rem;
+}
 
-                <!-- phone -->
-                <div class="form-group">
-                    <label for="">Phone</label>
-                    <input type="text" name="phone" 
-                    id="" class="form-control form-control-sm"
-                    value="{{values.phone}}"
-                    placeholder="565698959"
-                    >
-                </div>
-                <!-- email -->
-                <div class="form-group">
-                    <label for="">Email</label>
-                    <input required type="email" name="email" id=""
-                    value="{{values.email}}" 
-                    class=" form-control-sm form-control" placeholder="example@gmail.com">
-                </div>
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
 
+.auth-subtitle {
+  color: var(--text-light);
+  margin: 0;
+}
 
-                <!-- password -->
-                <div class="form-group">
-                    <label for="">Password</label>
-                    <input type="password" 
-                    name="password" 
-                    id=""
-                     class="form-control form-control-sm" placeholder="********">
-                </div>
+.form-group {
+  margin-bottom: 20px;
+}
 
-                <hr>
-                <div class="form-group">
-                    <input class="btn btn-sm btn-info" type="submit" value="Create An Account ">
-                </div>
+.form-group label {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  display: block;
+}
 
-                
-            </form>
-        </div>
+.form-control {
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  outline: none;
+}
+
+.auth-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.alert {
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.alert-danger {
+  background: rgba(245, 101, 101, 0.1);
+  color: var(--danger-color);
+  border-left: 4px solid var(--danger-color);
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+</style>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">
+        <i class="fas fa-user-plus"></i>
+      </div>
+      <h2 class="auth-title">Create Account</h2>
+      <p class="auth-subtitle">Join us and start shopping today</p>
     </div>
+
+    <form action="/signup" method="POST">
+      {% csrf_token %}
+
+      {% if error %}
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle mr-2"></i>{{error}}
+      </div>
+      {% endif %}
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstname">
+            <i class="fas fa-user mr-1"></i>First Name
+          </label>
+          <input type="text" 
+                 name="firstname"
+                 id="firstname" 
+                 value="{{values.first_name}}" 
+                 class="form-control" 
+                 placeholder="John">
+        </div>
+
+        <div class="form-group">
+          <label for="lastname">
+            <i class="fas fa-user mr-1"></i>Last Name
+          </label>
+          <input type="text" 
+                 name="lastname" 
+                 id="lastname" 
+                 value="{{values.last_name}}" 
+                 class="form-control"
+                 placeholder="Doe">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">
+          <i class="fas fa-phone mr-1"></i>Phone Number
+        </label>
+        <input type="text" 
+               name="phone" 
+               id="phone" 
+               class="form-control"
+               value="{{values.phone}}"
+               placeholder="Enter your phone number">
+      </div>
+
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope mr-1"></i>Email Address
+        </label>
+        <input required 
+               type="email" 
+               name="email" 
+               id="email"
+               value="{{values.email}}" 
+               class="form-control" 
+               placeholder="Enter your email">
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock mr-1"></i>Password
+        </label>
+        <input type="password" 
+               name="password" 
+               id="password"
+               class="form-control" 
+               placeholder="Create a secure password">
+      </div>
+
+      <button type="submit" class="auth-btn">
+        <i class="fas fa-user-plus mr-2"></i>Create Account
+      </button>
+    </form>
+
+    <div class="auth-link">
+      Already have an account? <a href="/login">Sign in here</a>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
